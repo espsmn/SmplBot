@@ -419,6 +419,7 @@ async function sendToDialogFlow(sender, textString, params) {
         const result = responses[0].queryResult;
         handleDialogFlowResponse(sender, result);
     } catch (e) {
+        console.log('YOYOYO')
         console.log('error');
         console.log(e);
     }
