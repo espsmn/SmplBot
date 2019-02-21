@@ -35,14 +35,8 @@ if (!config.FB_APP_SECRET) {
 if (!config.SERVER_URL) { //used for ink to static files
     throw new Error('missing SERVER_URL');
 }
-if (!config.SENGRID_API_KEY) { //sending email
-    throw new Error('missing SENGRID_API_KEY');
-}
-if (!config.EMAIL_FROM) { //sending email
+if (!config.EMAIL) { //sending email
     throw new Error('missing EMAIL_FROM');
-}
-if (!config.EMAIL_TO) { //sending email
-    throw new Error('missing EMAIL_TO');
 }
 
 app.set('port', (process.env.PORT || 5000))
@@ -248,27 +242,30 @@ function handleDialogFlowAction(sender, action, messages, contexts, parameters) 
 }
 
 function sendEmail(subject, content) {
+
     console.log('sending email');
-    var helper = require('sendgrid').mail;
-
-    var from_email = new helper.Email(config.EMAIL_FROM);
-    var to_email = new helper.Email(config.EMAIL_TO);
-    var subject = subject;
-    var content = new helper.Content("text/html", content);
-    var mail = new helper.Mail(from_email, subject, to_email, content);
-
-    var sg = require('sendgrid')(config.SENGRID_API_KEY);
-    var request = sg.emptyRequest({
-        method: 'POST',
-        path: '/v3/mail/send',
-        body: mail.toJSON()
+    let account = await nodemailer.createTestAccount();
+    let transporter = nodemailer.createTransport({
+      host: "smtp.ethereal.email",
+      port: 587,
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: account.user, // generated ethereal user
+        pass: account.pass // generated ethereal password
+      }
     });
-
-    sg.API(request, function(error, response) {
-        console.log(response.statusCode)
-        console.log(response.body)
-        console.log(response.headers)
-    })
+    // setup email data with unicode symbols
+    let mailOptions = {
+      from: '"SMPLBOT" <bot@smpl.com>',
+      to: process.env.EMAIL,
+      subject,
+      html: content
+    };
+  
+    let info = await transporter.sendMail(mailOptions)
+  
+    console.log("Message sent: %s", info.messageId);
+    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
 }
 
 function handleMessage(message, sender) {
