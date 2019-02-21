@@ -414,6 +414,8 @@ async function sendToDialogFlow(sender, textString, params) {
         };
         const responses = await sessionClient.detectIntent(request);
 
+        console.log('RESPONSE FROM DIALOGFLOW: ' + responses)
+
         const result = responses[0].queryResult;
         handleDialogFlowResponse(sender, result);
     } catch (e) {
