@@ -241,7 +241,7 @@ function handleDialogFlowAction(sender, action, messages, contexts, parameters) 
     }
 }
 
-function sendEmail(subject, content) {
+async function sendEmail(subject, content) {
 
     console.log('sending email');
     let account = await nodemailer.createTestAccount();
